@@ -1,0 +1,42 @@
+Set timer
+ask user how long to set timer for
+IDEAS
+Get a list of task and ask whcih one to work on
+Ask for a custom alert display if not use default
+Ask if they would like second or minutes
+Save Tasks to a file using sqlite
+After timer is done ask user if they completed task and what to do next i.e keep working on it,
+remove it etc
+
+
+Main Goals:
+- When you run it will ask do you want to:
+    - Add a Task
+    - View Tasks
+    - Work on a Task
+
+- Add Task
+- View Tasks:
+    - Query the sqlite and display the tasks
+    - Re display the menu
+- Work on task
+    - Ask which task to work on
+    - Ask how long to work on it
+    - Set the timer/alert for task and get to working
+    - After the timer goes off ask if you are done
+        - if yes mark task as done
+        - if not as waht to do next. Continue working on, save for later etc.
+
+Table Task
+id
+task_text
+created_date
+last_worked_on
+finished_task
+time_spent
+
+
+v1 version
+- add a task to DB
+- view tasks in DB
+- Select 1 task and set timer to work on it
