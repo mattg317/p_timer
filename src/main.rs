@@ -1,32 +1,63 @@
 use database::Database;
-mod timer;
+use std::io;
+use std::path::Path;
 mod database;
+mod timer;
 // use crate::timer;
 
+fn print_menu() -> String {
+    println!("Welcome to Task Doer");
+    println!("Please Select from the Menu");
+    println!("[L]ist tasks - [A]dd Task - [Q]uit Program - [W]ork on a task");
 
+    //
+    let mut menu_choice = String::new();
+    io::stdin()
+        .read_line(&mut menu_choice)
+        .expect("Failed to read line");
+    let menu_choice: String = menu_choice.trim().to_string().to_lowercase();
 
+    println!("You selected {}", menu_choice);
+    menu_choice
+}
 // fn main() -> Result<()> {
 fn main() {
     println!("Hello, world!");
-    // initialize_task_database().expect("Couldn't initialize dg");
-    // view_tasks().expect("Couldn't find tasks")
-    // let task_result = get_one_task().expect("Couldn't get task");
-    let task_db = Database::new("./my_db.db3").expect("Error");
-    task_db.insert_task().expect("Couldn't insert task");
-    // let task = task_db.get_one_task(1).expect("Could get task");
-    task_db.view_tasks().expect("Error")
-    // println!("Task: {}", task[0]);
-    // Ok(())
+    // =============== DATABASE TEsting ==========================
+    // 1. Check to initialize db
+    let file_path: String = "./my_db.db3".to_string();
 
+    if Path::new(&file_path).exists() != true {
+        database::initialize_task_database().expect("Error"); // should I have this be it's own
+                                                              // function?
+    }
+    let task_db = Database::new(&file_path).expect("Error");
 
-    // let user_task = timer::timer_setting();
-    // run_alert()
-    // list_tasks();
-    // let (timer_length, timer_task) = timer::timer_settings();
-    //     let user_task = timer::TimerSettings {
-    //     length: timer_length,
-    //     task: timer_task,
-    // };
-    // user_task.timer_setting();
-    // timer::run_alert(&user_task);
+    // Prompt menu
+    // MAIN program
+    // let mut menu_loop: bool = true;
+    // while menu_loop == true {
+    //     let menu_choice = print_menu();
+    //     match menu_choice.as_str() {
+    //         "l" => task_db.view_tasks().expect("Error"),
+    //         "a" => task_db.insert_task().expect("Error"),
+    //         // "q" => println!("good bye!"),
+    //         "q" => menu_loop = false,
+    //         _ => println!("Not a valid choice"),
+    //     }
+    // }
+
+    // task_db.insert_task().expect("Couldn't insert task");
+    let task = task_db.get_one_task().expect("Couldn't get task");
+    // task_db.view_tasks().expect("Error")
+    println!("Task: {}", task[0]);
+
+    // Run task from DB
+    let user_task = timer::TimerSettings {
+        length: 5,
+        task: task[0],
+    };
+    timer::run_alert(&user_task)
+
+    // =============== Menu TEsting ==========================
 }

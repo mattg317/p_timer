@@ -1,7 +1,8 @@
 use rusqlite::{Connection, Result};
+use std::io;
 
 #[derive(Debug)]
-struct Task {
+pub struct Task {
     id: i32,
     task: String,
     time_spent: i32,
@@ -13,39 +14,30 @@ pub struct Database {
 impl Database {
     pub fn new(db_path: &str) -> Result<Self> {
         let connection = Connection::open(db_path)?;
-        Ok( Database { conn: connection })
-
-    }
-    fn initialize_task_database(&self) -> Result<()> {
-        // let path = "./my_db.db3";
-        // let conn = Connection::open_in_memory()?;
-        // let conn = Connection::open(path)?;
-
-        self.conn.execute(
-            "CREATE TABLE tasks (
-            id    INTEGER PRIMARY KEY,
-            task  TEXT,
-            finished_task BOOL,
-            created_date TIMESTAMP,
-            time_spent INTEGER
-        )",
-            (), // empty list of parameters.
-        )?;
-        Ok(())
+        Ok(Database { conn: connection })
     }
 
     pub fn insert_task(&self) -> Result<()> {
+        println!("What Task would you like to add?");
+        let mut task_add = String::new();
+        io::stdin()
+            .read_line(&mut task_add)
+            .expect("Failed to read line");
+        let task_add: String = task_add.trim().to_string();
 
         self.conn.execute(
-            "INSERT INTO tasks (id, task, finished_taske, time_spent) VALUES (?1, ?2, ?3, ?4)",
-            (2, "Feed dog", false, 10),
+            "INSERT INTO tasks (task, finished_task, created_date, time_spent) VALUES (?1, ?2, CURRENT_TIMESTAMP, ?3)",
+            (&task_add, false, 0),
         )?;
+        println!("Added task {}", task_add);
 
         Ok(())
     }
 
     pub fn view_tasks(&self) -> Result<()> {
-        let mut stmt = self.conn.prepare("SELECT id, task, time_spent FROM tasks")?;
+        let mut stmt = self
+            .conn
+            .prepare("SELECT id, task, time_spent FROM tasks")?;
         let task_iter = stmt.query_map([], |row| {
             Ok(Task {
                 id: row.get(0)?,
@@ -56,16 +48,24 @@ impl Database {
 
         for task in task_iter {
             let task_line = task.unwrap();
-            println!("ID - {} Task - {}", task_line.id, task_line.task);
+            println!("[{}] - {}", task_line.id, task_line.task);
         }
         Ok(())
     }
 
     // TODO: implement for now to get one task and pash to the time
-    pub fn get_one_task(&self, task_id: i32) -> Result<Vec<String>> {
+    pub fn get_one_task(&self) -> Result<Vec<String>> {
+        println!("Which task would you like to work on?");
+        let _ = self.view_tasks();
+
+        let mut task_choice = String::new();
+        io::stdin()
+            .read_line(&mut task_choice)
+            .expect("Failed to read line");
+        let task_choice: String = task_choice.trim().to_string();
 
         let mut stmt = self.conn.prepare("SELECT task FROM tasks WHERE id = :id")?;
-        let rows = stmt.query_map(&[(":id", &task_id.to_string())], |row| row.get(0))?;
+        let rows = stmt.query_map(&[(":id", &task_choice)], |row| row.get(0))?;
 
         let mut tasks = Vec::new();
         for task in rows {
@@ -74,4 +74,22 @@ impl Database {
 
         Ok(tasks)
     }
+}
+
+pub fn initialize_task_database() -> Result<()> {
+    let path = "./my_db.db3";
+    let conn = Connection::open(path)?;
+
+    // TODO: redo table for id to be autoincremented
+    conn.execute(
+        "CREATE TABLE tasks (
+            id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            task  TEXT,
+            finished_task BOOL,
+            created_date TIMESTAMP,
+            time_spent INTEGER
+        )",
+        (), // empty list of parameters.
+    )?;
+    Ok(())
 }

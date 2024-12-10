@@ -40,3 +40,26 @@ v1 version
 - add a task to DB
 - view tasks in DB
 - Select 1 task and set timer to work on it
+
+    // let user_task = timer::timer_setting();
+    // run_alert()
+    // list_tasks();
+    // let (timer_length, timer_task) = timer::timer_settings();
+    //     let user_task = timer::TimerSettings {
+    //     length: timer_length,
+    //     task: timer_task,
+    // };
+    // user_task.timer_setting();
+    // timer::run_alert(&user_task);
+
+v1.1 DONE
+- Add menu for:
+    - view tasks
+    - adds task
+
+
+v1.2
+- Keep menu up after listing tasks
+- Pick a Task to work
+- Ask how long to work on it
+- Move everything over everything a github repo
